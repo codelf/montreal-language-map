@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Langues maternelles — Montréal 2021</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script src="https://unpkg.com/pmtiles@3.2.0/dist/pmtiles.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: 'Helvetica Neue', Arial, sans-serif; }
+    #map { position: absolute; inset: 0; }
+
+    .maplibregl-ctrl-group { background: rgba(255,255,255,0.95) !important; box-shadow: 0 1px 4px rgba(0,0,0,.12) !important; }
+    .maplibregl-ctrl-group button { background-color: transparent !important; color: #555 !important; }
+
+    /* ══ DESKTOP ══ */
+    @media (min-width: 600px) {
+      #sidebar {
+        position: absolute; top: 0; right: 0; bottom: 0;
+        width: 240px; z-index: 10;
+        background: rgba(255,255,255,0.96); backdrop-filter: blur(8px);
+        border-left: 1px solid rgba(0,0,0,0.08);
+        display: flex; flex-direction: column;
+        padding: 18px 14px 14px;
+        overflow-y: auto;
+      }
+      .maplibregl-ctrl-top-right { right: 248px !important; }
+      .maplibregl-ctrl-bottom-right { right: 248px !important; }
+      #sheet-header { display: none; }
+    }
+
+    /* ══ MOBILE ══ */
+    @media (max-width: 599px) {
+      #sidebar {
+        position: absolute; left: 0; right: 0; bottom: 0;
+        z-index: 10;
+        background: rgba(255,255,255,0.97); backdrop-filter: blur(12px);
+        border-top: 1px solid rgba(0,0,0,0.10);
+        border-radius: 16px 16px 0 0;
+        display: flex; flex-direction: column;
+        padding: 0 16px 28px;
+        max-height: 72vh;
+        overflow-y: auto;
+        transform: translateY(calc(100% - 68px));
+        transition: transform .3s cubic-bezier(.4,0,.2,1);
+      }
+      #sidebar.open { transform: translateY(0); }
+
+      #sheet-header {
+        display: flex; align-items: center; gap: 8px;
+        padding: 12px 0 8px;
+        cursor: pointer; user-select: none;
+        position: sticky; top: 0;
+        background: rgba(255,255,255,0.97); z-index: 1;
+        -webkit-tap-highlight-color: transparent;
+      }
+      #drag-handle {
+        width: 36px; height: 4px; border-radius: 2px; background: #ddd;
+        position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+      }
+      #peek-count { font-size: .82rem; font-weight: 700; color: #111; white-space: nowrap; padding-top: 6px; }
+      #peek-bar { height: 10px; border-radius: 4px; overflow: hidden; display: flex; flex: 1; margin-top: 6px; }
+      .peek-seg { height: 100%; transition: width .35s ease; }
+      #chevron { font-size: .9rem; color: #bbb; margin-left: auto; padding-top: 6px; }
+
+      .maplibregl-ctrl-bottom-right { bottom: 78px !important; }
+    }
+
+    /* ══ SHARED ══ */
+    #sidebar h3 {
+      font-size: .68rem; font-weight: 700; letter-spacing: .07em;
+      text-transform: uppercase; color: #bbb; margin-bottom: 12px;
+    }
+    #counter {
+      font-size: .73rem; color: #999; margin-bottom: 16px;
+      padding-bottom: 12px; border-bottom: 1px solid #eee;
+    }
+    #counter span { color: #111; font-weight: 700; font-size: .83rem; }
+    #stacked-bar {
+      height: 16px; border-radius: 5px; overflow: hidden;
+      display: flex; width: 100%; margin-bottom: 14px;
+    }
+    .seg { height: 100%; transition: width .3s ease; }
+    #legend-items { display: flex; flex-direction: column; gap: 2px; }
+    .leg-row {
+      display: flex; align-items: center; gap: 7px;
+      font-size: .76rem; color: #444;
+      cursor: pointer; user-select: none; transition: opacity .2s;
+      padding: 4px 0; -webkit-tap-highlight-color: transparent;
+    }
+    .leg-row:active { opacity: .6; }
+    .leg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .leg-pct { margin-left: auto; color: #888; font-size: .7rem; font-variant-numeric: tabular-nums; min-width: 36px; text-align: right; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+
+<div id="sidebar">
+  <div id="drag-handle"></div>
+  <div id="sheet-header" onclick="toggleSheet()">
+    <div style="flex:1; overflow:hidden;">
+      <div id="peek-count">Chargement…</div>
+      <div id="peek-bar"></div>
+    </div>
+    <span id="chevron">▲</span>
+  </div>
+
+  <div id="sheet-body">
+    <h3>Langues maternelles — Montréal 2021</h3>
+    <div id="counter">Chargement…</div>
+    <div id="stacked-bar"></div>
+    <div id="legend-items"></div>
+  </div>
+</div>
+
+<script>
+const LANGUAGES = [
+  { label: "Français",       key: "French",                       color: "#3A86FF" },
+  { label: "Anglais",        key: "English",                      color: "#FF006E" },
+  { label: "Arabe",          key: "Arabic",                       color: "#FFBE0B" },
+  { label: "Espagnol",       key: "Spanish",                      color: "#FB5607" },
+  { label: "Italien",        key: "Italian",                      color: "#8338EC" },
+  { label: "Portugais",      key: "Portuguese",                   color: "#06D6A0" },
+  { label: "Tagalog",        key: "Tagalog (Pilipino, Filipino)", color: "#118AB2" },
+  { label: "Créole haïtien", key: "Haitian Creole",               color: "#EF476F" },
+  { label: "Mandarin",       key: "Mandarin",                     color: "#FFD166" },
+  { label: "Cantonais",      key: "Yue (Cantonese)",              color: "#1E88E5" },
+  { label: "Vietnamien",     key: "Vietnamese",                   color: "#06A77D" },
+  { label: "Roumain",        key: "Romanian",                     color: "#D62246" },
+  { label: "Russe",          key: "Russian",                      color: "#7986CB" },
+  { label: "Autres",         key: "Other",                        color: "#AAAAAA" },
+];
+
+const COLOR_MAP = Object.fromEntries(LANGUAGES.map(l => [l.key, l.color]));
+const hidden = new Set();
+
+// ── Mobile sheet ──
+let sheetOpen = false;
+function toggleSheet() {
+  sheetOpen = !sheetOpen;
+  document.getElementById('sidebar').classList.toggle('open', sheetOpen);
+  document.getElementById('chevron').textContent = sheetOpen ? '▼' : '▲';
+}
+
+function buildPeekBar() {
+  const bar = document.getElementById('peek-bar');
+  bar.innerHTML = '';
+  LANGUAGES.forEach(({ key, color }) => {
+    const seg = document.createElement('div');
+    seg.className = 'peek-seg';
+    seg.id = 'pk-' + key.replace(/[^a-z]/gi, '_');
+    seg.style.background = color;
+    seg.style.width = '0%';
+    bar.appendChild(seg);
+  });
+}
+
+// ── PMTiles ──
+const protocol = new pmtiles.Protocol();
+maplibregl.addProtocol('pmtiles', protocol.tile.bind(protocol));
+
+const map = new maplibregl.Map({
+  container: 'map',
+  style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+  center: [-73.65, 45.54],
+  zoom: 11,
+  maxZoom: 14,
+  minZoom: 9,
+});
+map.addControl(new maplibregl.NavigationControl(), 'top-right');
+map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-right');
+
+map.on('load', () => {
+  // ── Dots layer (visual only, with density dropping) ──
+  map.addSource('dots', {
+    type: 'vector',
+    url: 'pmtiles://montreal_mother_tongue.pmtiles',
+  });
+  map.addLayer({
+    id: 'dots',
+    type: 'circle',
+    source: 'dots',
+    'source-layer': 'dots',
+    paint: {
+      'circle-color': ['match', ['get', 'language'],
+        ...LANGUAGES.flatMap(l => [l.key, l.color]), '#AAAAAA'],
+      'circle-radius': ['interpolate', ['linear'], ['zoom'],
+        9, 1.2, 11, 2, 13, 3.5, 14, 5.5],
+      'circle-opacity': .75,
+      'circle-stroke-width': 0,
+    },
+  });
+
+  // ── DA centroids layer (invisible, for accurate counts) ──
+  map.addSource('da-counts', {
+    type: 'geojson',
+    data: 'da_counts.geojson',
+  });
+  map.addLayer({
+    id: 'da-centers',
+    type: 'circle',
+    source: 'da-counts',
+    paint: {
+      'circle-radius': 1,
+      'circle-opacity': 0,
+      'circle-stroke-width': 0,
+    },
+  });
+
+  // Tooltip (desktop)
+  const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false });
+  map.on('mouseenter', 'dots', e => {
+    map.getCanvas().style.cursor = 'crosshair';
+    const lang = e.features[0].properties.language;
+    const entry = LANGUAGES.find(l => l.key === lang);
+    popup.setLngLat(e.lngLat)
+      .setHTML(`<span style="color:${COLOR_MAP[lang]??'#aaa'};font-weight:600">${entry?.label ?? lang}</span>`)
+      .addTo(map);
+  });
+  map.on('mouseleave', 'dots', () => { map.getCanvas().style.cursor = ''; popup.remove(); });
+
+  buildChart();
+  buildPeekBar();
+  map.on('moveend', updateChart);
+  map.on('zoomend', updateChart);
+  map.once('idle', updateChart);
+});
+
+function buildChart() {
+  const bar = document.getElementById('stacked-bar');
+  bar.innerHTML = '';
+  LANGUAGES.forEach(({ key, color, label }) => {
+    const seg = document.createElement('div');
+    seg.className = 'seg';
+    seg.id = 'seg-' + key.replace(/[^a-z]/gi, '_');
+    seg.style.background = color;
+    seg.style.width = '0%';
+    seg.title = label;
+    bar.appendChild(seg);
+  });
+
+  const legend = document.getElementById('legend-items');
+  legend.innerHTML = '';
+  LANGUAGES.forEach(({ key, color, label }) => {
+    const row = document.createElement('div');
+    row.className = 'leg-row';
+    row.dataset.key = key;
+    row.innerHTML = `
+      <div class="leg-dot" style="background:${color}"></div>
+      <span>${label}</span>
+      <span class="leg-pct" id="pct-${key.replace(/[^a-z]/gi,'_')}">—</span>`;
+    row.addEventListener('click', () => toggleLanguage(key));
+    legend.appendChild(row);
+  });
+}
+
+function toggleLanguage(key) {
+  if (hidden.size === 0) {
+    // First click from "all visible" → solo: hide every language except this one
+    LANGUAGES.forEach(l => { if (l.key !== key) hidden.add(l.key); });
+  } else if (hidden.has(key)) {
+    // Language is hidden → show it
+    hidden.delete(key);
+    // If everything is now visible again, reset to "all visible"
+    if (hidden.size === 0) { /* already clean */ }
+  } else {
+    // Language is visible while others are hidden → hide it
+    hidden.add(key);
+    // If all are hidden, reset to all visible instead
+    if (hidden.size === LANGUAGES.length) hidden.clear();
+  }
+
+  LANGUAGES.forEach(({ key: k }) => {
+    const safeKey = k.replace(/[^a-z]/gi, '_');
+    const isHidden = hidden.has(k);
+    const row = document.querySelector(`.leg-row[data-key="${k}"]`);
+    const seg = document.getElementById('seg-' + safeKey);
+    const pk  = document.getElementById('pk-'  + safeKey);
+    row && (row.style.opacity = isHidden ? '0.3' : '1');
+    seg && (seg.style.opacity = isHidden ? '0.15' : '1');
+    pk  && (pk.style.opacity  = isHidden ? '0.15' : '1');
+  });
+
+  map.setFilter('dots', hidden.size === 0
+    ? null
+    : ['!', ['in', ['get', 'language'], ['literal', [...hidden]]]]);
+  map.once('idle', updateChart);
+}
+
+let rafId = null;
+function updateChart() {
+  if (rafId) return;
+  rafId = requestAnimationFrame(() => {
+    rafId = null;
+
+    // Query DA centroids (only ~3 200 points) → fast + accurate real counts
+    const das = map.queryRenderedFeatures({ layers: ['da-centers'] });
+
+    const counts = {};
+    LANGUAGES.forEach(l => { counts[l.key] = 0; });
+    das.forEach(f => {
+      const p = f.properties;
+      LANGUAGES.forEach(({ key }) => {
+        if (p[key]) counts[key] += p[key];
+      });
+    });
+
+    const visibleTotal = Object.entries(counts)
+      .filter(([k]) => !hidden.has(k))
+      .reduce((s, [, v]) => s + v, 0);
+
+    const fmt = n => n.toLocaleString('fr-CA');
+    document.getElementById('counter').innerHTML =
+      `<span>${fmt(visibleTotal)}</span> habitants`;
+    document.getElementById('peek-count').textContent = fmt(visibleTotal) + ' hab.';
+
+    LANGUAGES.forEach(({ key }) => {
+      const safeKey = key.replace(/[^a-z]/gi, '_');
+      const cnt = counts[key] ?? 0;
+      const pct = visibleTotal > 0 ? cnt / visibleTotal * 100 : 0;
+      const w   = hidden.has(key) ? '0%' : pct.toFixed(2) + '%';
+      const seg = document.getElementById('seg-'  + safeKey);
+      const pk  = document.getElementById('pk-'   + safeKey);
+      const pEl = document.getElementById('pct-'  + safeKey);
+      if (seg) seg.style.width = w;
+      if (pk)  pk.style.width  = w;
+      if (pEl) pEl.textContent = (!hidden.has(key) && pct > 0.4) ? pct.toFixed(1) + '%' : '';
+    });
+  });
+}
+</script>
+</body>
+</html>
