@@ -105,6 +105,12 @@
     .leg-row:hover { background: rgba(0,0,0,.03); }
     .leg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
     .leg-pct { margin-left: auto; color: #888; font-size: .7rem; font-variant-numeric: tabular-nums; min-width: 34px; text-align: right; }
+    .other-arrow { background: none; border: none; cursor: pointer; font-size: .7rem; color: #aaa; padding: 0 2px; transition: transform .2s; line-height: 1; }
+    .other-arrow.open { transform: rotate(90deg); }
+    #other-detail { display: none; padding: 4px 4px 4px 20px; border-left: 2px solid #eee; margin: 2px 0 4px 4px; }
+    #other-detail.open { display: block; }
+    .other-sub-row { display: flex; justify-content: space-between; font-size: .68rem; color: #777; padding: 2px 0; }
+    .other-sub-row span:last-child { color: #aaa; font-variant-numeric: tabular-nums; }
   </style>
 </head>
 <body>
@@ -161,6 +167,30 @@ const LANGUAGES = [
   { label: "Tamil",          key: "Tamil",                        color: "#D84315" },
   { label: "Angl.+Franç.",   key: "English and French",           color: "#78909C" },
   { label: "Autres",         key: "Other",                        color: "#AAAAAA" },
+];
+
+// Composition approx. de la catégorie Autres (% des Autres, estimé île de Montréal)
+const OTHER_BREAKDOWN = [
+  { label: "Bilingues (Fr/En + autre langue)",  pct: 20.4 },
+  { label: "Urdu",          pct: 1.5 },
+  { label: "Yiddish",       pct: 1.2 },
+  { label: "Dari",          pct: 1.2 },
+  { label: "Khmer",         pct: 1.1 },
+  { label: "Turc",          pct: 1.1 },
+  { label: "Allemand",      pct: 1.0 },
+  { label: "Gujarati",      pct: 1.0 },
+  { label: "Coréen",        pct: 0.9 },
+  { label: "Bulgare",       pct: 0.8 },
+  { label: "Serbo-croate",  pct: 0.6 },
+  { label: "Ukrainien",     pct: 0.6 },
+  { label: "Hongrois",      pct: 0.6 },
+  { label: "Hébreu",        pct: 0.5 },
+  { label: "Laotien",       pct: 0.5 },
+  { label: "Albanais",      pct: 0.4 },
+  { label: "Wolof",         pct: 0.4 },
+  { label: "Lingala",       pct: 0.3 },
+  { label: "Kinyarwanda",   pct: 0.3 },
+  { label: "Japonais",      pct: 0.3 },
 ];
 
 const COLOR_MAP = Object.fromEntries(LANGUAGES.map(l => [l.key, l.color]));
@@ -356,12 +386,41 @@ function buildChart() {
   LANGUAGES.forEach(({ key, color, label }) => {
     const row = document.createElement('div');
     row.className = 'leg-row'; row.dataset.key = key;
-    row.innerHTML = `<div class="leg-dot" style="background:${color}"></div>
-      <span>${label}</span>
-      <span class="leg-pct" id="pct-${safeId(key)}">—</span>`;
+    if (key === 'Other') {
+      row.innerHTML = `<div class="leg-dot" style="background:${color}"></div>
+        <span>${label}</span>
+        <button class="other-arrow" id="other-arrow" onclick="event.stopPropagation();toggleOtherDetail()">▶</button>
+        <span class="leg-pct" id="pct-${safeId(key)}">—</span>`;
+    } else {
+      row.innerHTML = `<div class="leg-dot" style="background:${color}"></div>
+        <span>${label}</span>
+        <span class="leg-pct" id="pct-${safeId(key)}">—</span>`;
+    }
     row.addEventListener('click', () => toggleLanguage(key));
     legend.appendChild(row);
   });
+
+  // Build the Other detail sub-list (hidden by default)
+  const detail = document.createElement('div');
+  detail.id = 'other-detail';
+  OTHER_BREAKDOWN.forEach(({ label, pct }) => {
+    const r = document.createElement('div');
+    r.className = 'other-sub-row';
+    r.innerHTML = `<span>${label}</span><span>~${pct.toFixed(1)}% des Autres</span>`;
+    detail.appendChild(r);
+  });
+  const tail = document.createElement('div');
+  tail.className = 'other-sub-row';
+  tail.innerHTML = `<span style="color:#bbb;font-style:italic">+ ~190 autres langues</span><span>~64%</span>`;
+  detail.appendChild(tail);
+  legend.appendChild(detail);
+}
+
+function toggleOtherDetail() {
+  const detail = document.getElementById('other-detail');
+  const arrow  = document.getElementById('other-arrow');
+  const open = detail.classList.toggle('open');
+  arrow.classList.toggle('open', open);
 }
 
 // ── Update counts from DA centroids ──
