@@ -397,17 +397,17 @@ function updateChart() {
       if (row) legend.appendChild(row);
     });
 
+    const grandTotal = Object.values(counts).reduce((s, v) => s + v, 0);
     LANGUAGES.forEach(({ key }) => {
       const cnt = counts[key] ?? 0;
-      const pct = visibleTotal > 0 ? cnt / visibleTotal * 100 : 0;
-      const w = hidden.has(key) ? '0%' : pct.toFixed(2) + '%';
+      const pct = grandTotal > 0 ? cnt / grandTotal * 100 : 0;
       const s = safeId(key);
       const seg = document.getElementById('seg-' + s);
       const pk  = document.getElementById('pk-'  + s);
       const pEl = document.getElementById('pct-' + s);
-      if (seg) seg.style.width = w;
-      if (pk)  pk.style.width  = w;
-      if (pEl) pEl.textContent = (!hidden.has(key) && pct > 0) ? (pct < 0.1 ? '<0.1%' : pct.toFixed(1) + '%') : '';
+      if (seg) seg.style.width = pct.toFixed(2) + '%';
+      if (pk)  pk.style.width  = pct.toFixed(2) + '%';
+      if (pEl) pEl.textContent = pct > 0 ? (pct < 0.1 ? '<0.1%' : pct.toFixed(1) + '%') : '';
     });
   });
 }
