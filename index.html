@@ -18,42 +18,33 @@
     /* ══ DESKTOP ══ */
     @media (min-width: 600px) {
       #sidebar {
-        position: absolute; top: 0; right: 0; bottom: 0;
-        width: 240px; z-index: 10;
-        background: rgba(255,255,255,0.96); backdrop-filter: blur(8px);
+        position: absolute; top: 0; right: 0; bottom: 0; width: 252px; z-index: 10;
+        background: rgba(255,255,255,0.97); backdrop-filter: blur(8px);
         border-left: 1px solid rgba(0,0,0,0.08);
         display: flex; flex-direction: column;
-        padding: 18px 14px 14px;
-        overflow-y: auto;
+        padding: 16px 14px 14px; overflow-y: auto;
       }
-      .maplibregl-ctrl-top-right { right: 248px !important; }
-      .maplibregl-ctrl-bottom-right { right: 248px !important; }
+      .maplibregl-ctrl-top-right { right: 260px !important; }
+      .maplibregl-ctrl-bottom-right { right: 260px !important; }
       #sheet-header { display: none; }
     }
 
     /* ══ MOBILE ══ */
     @media (max-width: 599px) {
       #sidebar {
-        position: absolute; left: 0; right: 0; bottom: 0;
-        z-index: 10;
+        position: absolute; left: 0; right: 0; bottom: 0; z-index: 10;
         background: rgba(255,255,255,0.97); backdrop-filter: blur(12px);
-        border-top: 1px solid rgba(0,0,0,0.10);
-        border-radius: 16px 16px 0 0;
+        border-top: 1px solid rgba(0,0,0,0.10); border-radius: 16px 16px 0 0;
         display: flex; flex-direction: column;
-        padding: 0 16px 28px;
-        max-height: 72vh;
-        overflow-y: auto;
+        padding: 0 16px 28px; max-height: 75vh; overflow-y: auto;
         transform: translateY(calc(100% - 68px));
         transition: transform .3s cubic-bezier(.4,0,.2,1);
       }
       #sidebar.open { transform: translateY(0); }
-
       #sheet-header {
         display: flex; align-items: center; gap: 8px;
-        padding: 12px 0 8px;
-        cursor: pointer; user-select: none;
-        position: sticky; top: 0;
-        background: rgba(255,255,255,0.97); z-index: 1;
+        padding: 12px 0 8px; cursor: pointer; user-select: none;
+        position: sticky; top: 0; background: rgba(255,255,255,0.97); z-index: 1;
         -webkit-tap-highlight-color: transparent;
       }
       #drag-handle {
@@ -62,37 +53,58 @@
       }
       #peek-count { font-size: .82rem; font-weight: 700; color: #111; white-space: nowrap; padding-top: 6px; }
       #peek-bar { height: 10px; border-radius: 4px; overflow: hidden; display: flex; flex: 1; margin-top: 6px; }
-      .peek-seg { height: 100%; transition: width .35s ease; }
+      .peek-seg { height: 100%; transition: width .3s ease; }
       #chevron { font-size: .9rem; color: #bbb; margin-left: auto; padding-top: 6px; }
-
       .maplibregl-ctrl-bottom-right { bottom: 78px !important; }
     }
 
     /* ══ SHARED ══ */
     #sidebar h3 {
-      font-size: .68rem; font-weight: 700; letter-spacing: .07em;
-      text-transform: uppercase; color: #bbb; margin-bottom: 12px;
+      font-size: .65rem; font-weight: 700; letter-spacing: .07em;
+      text-transform: uppercase; color: #bbb; margin-bottom: 10px;
     }
+
+    #arr-wrap { margin-bottom: 14px; }
+    #arr-select {
+      width: 100%; padding: 7px 10px; border: 1px solid #e0e0e0;
+      border-radius: 8px; font-size: .78rem; color: #333;
+      background: #fafafa url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center;
+      appearance: none; cursor: pointer;
+    }
+    #arr-select:focus { outline: none; border-color: #aaa; }
+
     #counter {
-      font-size: .73rem; color: #999; margin-bottom: 16px;
-      padding-bottom: 12px; border-bottom: 1px solid #eee;
+      font-size: .73rem; color: #999; margin-bottom: 14px;
+      padding-bottom: 12px; border-bottom: 1px solid #f0f0f0;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
     }
     #counter span { color: #111; font-weight: 700; font-size: .83rem; }
+    #reset-btn {
+      font-size: .68rem; color: #aaa; cursor: pointer; padding: 2px 7px;
+      border: 1px solid #e8e8e8; border-radius: 4px; white-space: nowrap;
+      transition: all .15s; flex-shrink: 0; display: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #reset-btn:hover { color: #555; border-color: #bbb; }
+    #reset-btn.on { display: block; }
+
     #stacked-bar {
       height: 16px; border-radius: 5px; overflow: hidden;
       display: flex; width: 100%; margin-bottom: 14px;
     }
     .seg { height: 100%; transition: width .3s ease; }
-    #legend-items { display: flex; flex-direction: column; gap: 2px; }
+
+    #legend-items { display: flex; flex-direction: column; gap: 1px; }
     .leg-row {
       display: flex; align-items: center; gap: 7px;
-      font-size: .76rem; color: #444;
+      font-size: .75rem; color: #444;
       cursor: pointer; user-select: none; transition: opacity .2s;
-      padding: 4px 0; -webkit-tap-highlight-color: transparent;
+      padding: 4px 3px; border-radius: 5px;
+      -webkit-tap-highlight-color: transparent;
     }
-    .leg-row:active { opacity: .6; }
+    .leg-row:hover { background: rgba(0,0,0,.03); }
     .leg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-    .leg-pct { margin-left: auto; color: #888; font-size: .7rem; font-variant-numeric: tabular-nums; min-width: 36px; text-align: right; }
+    .leg-pct { margin-left: auto; color: #888; font-size: .7rem; font-variant-numeric: tabular-nums; min-width: 34px; text-align: right; }
   </style>
 </head>
 <body>
@@ -101,7 +113,7 @@
 <div id="sidebar">
   <div id="drag-handle"></div>
   <div id="sheet-header" onclick="toggleSheet()">
-    <div style="flex:1; overflow:hidden;">
+    <div style="flex:1;overflow:hidden">
       <div id="peek-count">Chargement…</div>
       <div id="peek-bar"></div>
     </div>
@@ -109,8 +121,16 @@
   </div>
 
   <div id="sheet-body">
-    <h3>Langues maternelles — Montréal 2021</h3>
-    <div id="counter">Chargement…</div>
+    <h3>Langues maternelles · Montréal 2021</h3>
+    <div id="arr-wrap">
+      <select id="arr-select" onchange="onArrChange(this.value)">
+        <option value="">Île de Montréal</option>
+      </select>
+    </div>
+    <div id="counter">
+      <div>Chargement…</div>
+      <div id="reset-btn" onclick="resetFilter()">✕ Tout afficher</div>
+    </div>
     <div id="stacked-bar"></div>
     <div id="legend-items"></div>
   </div>
@@ -124,18 +144,27 @@ const LANGUAGES = [
   { label: "Espagnol",       key: "Spanish",                      color: "#FB5607" },
   { label: "Italien",        key: "Italian",                      color: "#8338EC" },
   { label: "Portugais",      key: "Portuguese",                   color: "#06D6A0" },
+  { label: "Hindi",          key: "Hindi",                        color: "#E91E63" },
+  { label: "Grec",           key: "Greek",                        color: "#1565C0" },
   { label: "Tagalog",        key: "Tagalog (Pilipino, Filipino)", color: "#118AB2" },
   { label: "Créole haïtien", key: "Haitian Creole",               color: "#EF476F" },
   { label: "Mandarin",       key: "Mandarin",                     color: "#FFD166" },
   { label: "Cantonais",      key: "Yue (Cantonese)",              color: "#1E88E5" },
   { label: "Vietnamien",     key: "Vietnamese",                   color: "#06A77D" },
+  { label: "Bengali",        key: "Bengali",                      color: "#F57C00" },
+  { label: "Arménien",       key: "Armenian",                     color: "#6A1B9A" },
   { label: "Roumain",        key: "Romanian",                     color: "#D62246" },
   { label: "Russe",          key: "Russian",                      color: "#7986CB" },
+  { label: "Polonais",       key: "Polish",                       color: "#558B2F" },
   { label: "Autres",         key: "Other",                        color: "#AAAAAA" },
 ];
 
 const COLOR_MAP = Object.fromEntries(LANGUAGES.map(l => [l.key, l.color]));
 const hidden = new Set();
+let arrFeatures = [];
+let selectedArrName = null;
+
+const safeId = k => k.replace(/[^a-z]/gi, '_');
 
 // ── Mobile sheet ──
 let sheetOpen = false;
@@ -149,12 +178,10 @@ function buildPeekBar() {
   const bar = document.getElementById('peek-bar');
   bar.innerHTML = '';
   LANGUAGES.forEach(({ key, color }) => {
-    const seg = document.createElement('div');
-    seg.className = 'peek-seg';
-    seg.id = 'pk-' + key.replace(/[^a-z]/gi, '_');
-    seg.style.background = color;
-    seg.style.width = '0%';
-    bar.appendChild(seg);
+    const s = document.createElement('div');
+    s.className = 'peek-seg'; s.id = 'pk-' + safeId(key);
+    s.style.background = color; s.style.width = '0%';
+    bar.appendChild(s);
   });
 }
 
@@ -174,7 +201,7 @@ map.addControl(new maplibregl.NavigationControl(), 'top-right');
 map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-right');
 
 map.on('load', () => {
-  // ── Dots layer (visual only, with density dropping) ──
+  // Dots (visual)
   map.addSource('dots', {
     type: 'vector',
     url: 'pmtiles://montreal_mother_tongue.pmtiles',
@@ -194,33 +221,40 @@ map.on('load', () => {
     },
   });
 
-  // ── DA centroids layer (invisible, for accurate counts) ──
-  map.addSource('da-counts', {
-    type: 'geojson',
-    data: 'da_counts.geojson',
-  });
+  // DA centroids (invisible — for accurate counts)
+  map.addSource('da-counts', { type: 'geojson', data: 'da_counts.geojson' });
   map.addLayer({
-    id: 'da-centers',
-    type: 'circle',
-    source: 'da-counts',
-    paint: {
-      'circle-radius': 1,
-      'circle-opacity': 0,
-      'circle-stroke-width': 0,
-    },
+    id: 'da-centers', type: 'circle', source: 'da-counts',
+    paint: { 'circle-radius': 1, 'circle-opacity': 0, 'circle-stroke-width': 0 },
   });
 
-  // Tooltip (desktop)
-  const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false });
-  map.on('mouseenter', 'dots', e => {
-    map.getCanvas().style.cursor = 'crosshair';
-    const lang = e.features[0].properties.language;
-    const entry = LANGUAGES.find(l => l.key === lang);
-    popup.setLngLat(e.lngLat)
-      .setHTML(`<span style="color:${COLOR_MAP[lang]??'#aaa'};font-weight:600">${entry?.label ?? lang}</span>`)
-      .addTo(map);
+  // Arrondissement outlines
+  map.addSource('arrondissements', { type: 'geojson', data: 'arrondissements.geojson' });
+  map.addLayer({
+    id: 'arr-fill', type: 'fill', source: 'arrondissements',
+    paint: {
+      'fill-color': '#3A86FF',
+      'fill-opacity': ['case', ['boolean', ['feature-state', 'selected'], false], 0.07, 0],
+    },
   });
-  map.on('mouseleave', 'dots', () => { map.getCanvas().style.cursor = ''; popup.remove(); });
+  map.addLayer({
+    id: 'arr-outline', type: 'line', source: 'arrondissements',
+    paint: { 'line-color': '#bbb', 'line-width': 0.8 },
+  });
+
+  // Populate dropdown
+  fetch('arrondissements.geojson').then(r => r.json()).then(fc => {
+    arrFeatures = fc.features;
+    const sel = document.getElementById('arr-select');
+    [...arrFeatures]
+      .sort((a, b) => a.properties.name.localeCompare(b.properties.name, 'fr'))
+      .forEach(feat => {
+        const opt = document.createElement('option');
+        opt.value = feat.properties.name;
+        opt.textContent = feat.properties.name;
+        sel.appendChild(opt);
+      });
+  });
 
   buildChart();
   buildPeekBar();
@@ -229,16 +263,82 @@ map.on('load', () => {
   map.once('idle', updateChart);
 });
 
+// ── Arrondissement dropdown ──
+function onArrChange(name) {
+  // Clear previous selection highlight
+  if (selectedArrName !== null) {
+    const prev = arrFeatures.findIndex(f => f.properties.name === selectedArrName);
+    if (prev >= 0) map.setFeatureState({ source: 'arrondissements', id: prev }, { selected: false });
+  }
+  selectedArrName = name || null;
+
+  if (!name) {
+    map.flyTo({ center: [-73.65, 45.54], zoom: 11, duration: 700 });
+    setTimeout(updateChart, 800);
+    return;
+  }
+
+  const idx = arrFeatures.findIndex(f => f.properties.name === name);
+  if (idx < 0) return;
+  map.setFeatureState({ source: 'arrondissements', id: idx }, { selected: true });
+
+  const feat = arrFeatures[idx];
+  const coords = [];
+  const collect = g => {
+    if (g.type === 'Polygon') g.coordinates.forEach(ring => ring.forEach(c => coords.push(c)));
+    else if (g.type === 'MultiPolygon') g.coordinates.forEach(p => p.forEach(ring => ring.forEach(c => coords.push(c))));
+  };
+  collect(feat.geometry);
+  const lngs = coords.map(c => c[0]), lats = coords.map(c => c[1]);
+  map.fitBounds(
+    [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
+    { padding: 50, duration: 700, maxZoom: 13 }
+  );
+  setTimeout(updateChart, 800);
+}
+
+// ── Language solo/toggle filter ──
+function toggleLanguage(key) {
+  if (hidden.size === 0) {
+    LANGUAGES.forEach(l => { if (l.key !== key) hidden.add(l.key); });
+  } else if (hidden.has(key)) {
+    hidden.delete(key);
+  } else {
+    hidden.add(key);
+    if (hidden.size === LANGUAGES.length) hidden.clear();
+  }
+  applyLangFilter();
+}
+
+function resetFilter() {
+  hidden.clear();
+  applyLangFilter();
+}
+
+function applyLangFilter() {
+  LANGUAGES.forEach(({ key }) => {
+    const h = hidden.has(key), s = safeId(key);
+    const row = document.querySelector(`.leg-row[data-key="${key}"]`);
+    const seg = document.getElementById('seg-' + s);
+    const pk  = document.getElementById('pk-'  + s);
+    if (row) row.style.opacity = h ? '0.3' : '1';
+    if (seg) seg.style.opacity = h ? '0.15' : '1';
+    if (pk)  pk.style.opacity  = h ? '0.15' : '1';
+  });
+  map.setFilter('dots', hidden.size === 0
+    ? null : ['!', ['in', ['get', 'language'], ['literal', [...hidden]]]]);
+  document.getElementById('reset-btn').classList.toggle('on', hidden.size > 0);
+  map.once('idle', updateChart);
+}
+
+// ── Build chart DOM ──
 function buildChart() {
   const bar = document.getElementById('stacked-bar');
   bar.innerHTML = '';
   LANGUAGES.forEach(({ key, color, label }) => {
     const seg = document.createElement('div');
-    seg.className = 'seg';
-    seg.id = 'seg-' + key.replace(/[^a-z]/gi, '_');
-    seg.style.background = color;
-    seg.style.width = '0%';
-    seg.title = label;
+    seg.className = 'seg'; seg.id = 'seg-' + safeId(key);
+    seg.style.background = color; seg.style.width = '0%'; seg.title = label;
     bar.appendChild(seg);
   });
 
@@ -246,88 +346,59 @@ function buildChart() {
   legend.innerHTML = '';
   LANGUAGES.forEach(({ key, color, label }) => {
     const row = document.createElement('div');
-    row.className = 'leg-row';
-    row.dataset.key = key;
-    row.innerHTML = `
-      <div class="leg-dot" style="background:${color}"></div>
+    row.className = 'leg-row'; row.dataset.key = key;
+    row.innerHTML = `<div class="leg-dot" style="background:${color}"></div>
       <span>${label}</span>
-      <span class="leg-pct" id="pct-${key.replace(/[^a-z]/gi,'_')}">—</span>`;
+      <span class="leg-pct" id="pct-${safeId(key)}">—</span>`;
     row.addEventListener('click', () => toggleLanguage(key));
     legend.appendChild(row);
   });
 }
 
-function toggleLanguage(key) {
-  if (hidden.size === 0) {
-    // First click from "all visible" → solo: hide every language except this one
-    LANGUAGES.forEach(l => { if (l.key !== key) hidden.add(l.key); });
-  } else if (hidden.has(key)) {
-    // Language is hidden → show it
-    hidden.delete(key);
-    // If everything is now visible again, reset to "all visible"
-    if (hidden.size === 0) { /* already clean */ }
-  } else {
-    // Language is visible while others are hidden → hide it
-    hidden.add(key);
-    // If all are hidden, reset to all visible instead
-    if (hidden.size === LANGUAGES.length) hidden.clear();
-  }
-
-  LANGUAGES.forEach(({ key: k }) => {
-    const safeKey = k.replace(/[^a-z]/gi, '_');
-    const isHidden = hidden.has(k);
-    const row = document.querySelector(`.leg-row[data-key="${k}"]`);
-    const seg = document.getElementById('seg-' + safeKey);
-    const pk  = document.getElementById('pk-'  + safeKey);
-    row && (row.style.opacity = isHidden ? '0.3' : '1');
-    seg && (seg.style.opacity = isHidden ? '0.15' : '1');
-    pk  && (pk.style.opacity  = isHidden ? '0.15' : '1');
-  });
-
-  map.setFilter('dots', hidden.size === 0
-    ? null
-    : ['!', ['in', ['get', 'language'], ['literal', [...hidden]]]]);
-  map.once('idle', updateChart);
-}
-
+// ── Update counts from DA centroids ──
 let rafId = null;
 function updateChart() {
   if (rafId) return;
   rafId = requestAnimationFrame(() => {
     rafId = null;
-
-    // Query DA centroids (only ~3 200 points) → fast + accurate real counts
     const das = map.queryRenderedFeatures({ layers: ['da-centers'] });
-
     const counts = {};
     LANGUAGES.forEach(l => { counts[l.key] = 0; });
-    das.forEach(f => {
-      const p = f.properties;
-      LANGUAGES.forEach(({ key }) => {
-        if (p[key]) counts[key] += p[key];
-      });
-    });
+    das.forEach(f => LANGUAGES.forEach(({ key }) => {
+      if (f.properties[key]) counts[key] += f.properties[key];
+    }));
 
     const visibleTotal = Object.entries(counts)
       .filter(([k]) => !hidden.has(k))
       .reduce((s, [, v]) => s + v, 0);
 
     const fmt = n => n.toLocaleString('fr-CA');
-    document.getElementById('counter').innerHTML =
-      `<span>${fmt(visibleTotal)}</span> habitants`;
+    document.getElementById('counter').innerHTML = `
+      <div><span>${fmt(visibleTotal)}</span> habitants</div>
+      <div id="reset-btn" class="${hidden.size > 0 ? 'on' : ''}" onclick="resetFilter()">✕ Tout afficher</div>`;
     document.getElementById('peek-count').textContent = fmt(visibleTotal) + ' hab.';
 
+    // Sort legend by count desc, "Autres" always last
+    const sorted = LANGUAGES.filter(l => l.key !== 'Other')
+      .sort((a, b) => (counts[b.key] ?? 0) - (counts[a.key] ?? 0));
+    const othersLang = LANGUAGES.find(l => l.key === 'Other');
+    const legend = document.getElementById('legend-items');
+    [...sorted, othersLang].forEach(({ key }) => {
+      const row = document.querySelector(`.leg-row[data-key="${key}"]`);
+      if (row) legend.appendChild(row);
+    });
+
     LANGUAGES.forEach(({ key }) => {
-      const safeKey = key.replace(/[^a-z]/gi, '_');
       const cnt = counts[key] ?? 0;
       const pct = visibleTotal > 0 ? cnt / visibleTotal * 100 : 0;
-      const w   = hidden.has(key) ? '0%' : pct.toFixed(2) + '%';
-      const seg = document.getElementById('seg-'  + safeKey);
-      const pk  = document.getElementById('pk-'   + safeKey);
-      const pEl = document.getElementById('pct-'  + safeKey);
+      const w = hidden.has(key) ? '0%' : pct.toFixed(2) + '%';
+      const s = safeId(key);
+      const seg = document.getElementById('seg-' + s);
+      const pk  = document.getElementById('pk-'  + s);
+      const pEl = document.getElementById('pct-' + s);
       if (seg) seg.style.width = w;
       if (pk)  pk.style.width  = w;
-      if (pEl) pEl.textContent = (!hidden.has(key) && pct > 0.4) ? pct.toFixed(1) + '%' : '';
+      if (pEl) pEl.textContent = (!hidden.has(key) && pct > 0.3) ? pct.toFixed(1) + '%' : '';
     });
   });
 }
