@@ -403,7 +403,7 @@ function updateChart() {
       const pEl = document.getElementById('pct-' + s);
       if (seg) seg.style.width = w;
       if (pk)  pk.style.width  = w;
-      if (pEl) pEl.textContent = (!hidden.has(key) && pct > 0.3) ? pct.toFixed(1) + '%' : '';
+      if (pEl) pEl.textContent = (!hidden.has(key) && pct > 0) ? (pct < 0.1 ? '<0.1%' : pct.toFixed(1) + '%') : '';
     });
   });
 }
