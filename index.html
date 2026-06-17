@@ -274,6 +274,7 @@ function onArrChange(name) {
 
   if (!name) {
     map.flyTo({ center: [-73.65, 45.54], zoom: 11, duration: 700 });
+    applyLangFilter();
     setTimeout(updateChart, 800);
     return;
   }
@@ -294,6 +295,7 @@ function onArrChange(name) {
     [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
     { padding: 50, duration: 700, maxZoom: 13 }
   );
+  applyLangFilter();
   setTimeout(updateChart, 800);
 }
 
@@ -325,9 +327,12 @@ function applyLangFilter() {
     if (seg) seg.style.opacity = h ? '0.15' : '1';
     if (pk)  pk.style.opacity  = h ? '0.15' : '1';
   });
-  map.setFilter('dots', hidden.size === 0
-    ? null : ['!', ['in', ['get', 'language'], ['literal', [...hidden]]]]);
-  document.getElementById('reset-btn').classList.toggle('on', hidden.size > 0);
+  const arrFilter = selectedArrName ? ['==', ['get', 'arr'], selectedArrName] : null;
+  const langFilter = hidden.size === 0 ? null : ['!', ['in', ['get', 'language'], ['literal', [...hidden]]]];
+  const filters = [arrFilter, langFilter].filter(Boolean);
+  map.setFilter('dots', filters.length === 0 ? null : filters.length === 1 ? filters[0] : ['all', ...filters]);
+  map.setFilter('da-centers', arrFilter);
+  document.getElementById('reset-btn').classList.toggle('on', hidden.size > 0 || !!selectedArrName);
   map.once('idle', updateChart);
 }
 
